@@ -1,5 +1,5 @@
 {
-  "name": "nodejs-server-logger",
+  "name": "nodejs-server-log",
   "version": "0.0.1",
   "description": "NodeJS API Logger",
   "main": "lib/index.js",
