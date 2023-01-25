@@ -3,7 +3,7 @@
   "version": "0.0.4",
   "description": "NodeJS API Logger",
   "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "types": "lib/src/index.d.ts",
   "scripts": {
     "dev": "npx nodemon",
     "start": "node ./build/index.js",
