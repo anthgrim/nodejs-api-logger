@@ -1,6 +1,6 @@
 {
   "name": "nodejs-server-log",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "NodeJS API Logger",
   "main": "lib/index.js",
   "types": "lib/src/index.d.ts",
