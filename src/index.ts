@@ -63,14 +63,14 @@ export function log(options: LogOptions): void {
     ? levels[levelName]
     : levels.info
   if (error !== undefined) {
-    options.message = `${error.name} - ${error.message}\n${error.stack}`
+    options.message = `${error.name} ${error.message} ${error.stack}`
   }
 
   // Write to the console
   writeToConsole(targetLevel, options.message)
 
   if (targetLevel.writeToFile) {
-    writeToFile(targetLevel, options.message)
+    writeToFile(targetLevel, options.message, error)
   }
 }
 
@@ -101,11 +101,25 @@ function writeToConsole(targetLevel: Level, message: string): void {
  * @param {string} message
  * @param {Error | undefined} error
  */
-function writeToFile(targetLevel: Level, message: string): void {
+function writeToFile(
+  targetLevel: Level,
+  message: string,
+  error: Error | undefined
+): void {
   const logDir = configData.logDir
-  const data: string = `{"level": "${
-    targetLevel.value
-  }", "message": "${message}", "timeStamp": "${getCurrentDate()}"}\r\n`
+  let data: string = ''
+
+  if (error !== undefined) {
+    data = `{"level": "${targetLevel.value}", "errorName": "${
+      error.name
+    }", "errorMessage": "${
+      error.message
+    }", "timeStamp": "${getCurrentDate()}"}\r\n`
+  } else {
+    data = `{"level": "${
+      targetLevel.value
+    }", "message": "${message}", "timeStamp": "${getCurrentDate()}"}\r\n`
+  }
 
   if (!existsSync(logDir)) {
     log({
@@ -159,32 +173,6 @@ export async function readLog(fileName: string): Promise<JSON[]> {
         message: `${fileName.toUpperCase()} logs have been accessed`
       })
       console.table(logs)
-      resolve(logs)
-    })
-
-    lineReader.on('error', (error) => reject(error))
-  })
-}
-
-/**
- * @description Gets the logs of specified file
- * @param {string} fileName
- * @returns {Promise<JSON[]>} logs
- */
-export async function readJSONData(): Promise<JSON[]> {
-  const logDir = './logs.json'
-
-  return await new Promise((resolve, reject) => {
-    const file = path.join(logDir)
-
-    const lineReader = readLine.createInterface({
-      input: createReadStream(file)
-    })
-
-    const logs: JSON[] = []
-
-    lineReader.on('line', (line) => logs.push(JSON.parse(line)))
-    lineReader.on('close', () => {
       resolve(logs)
     })
 
