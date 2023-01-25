@@ -1,11 +1,11 @@
 // @ts-ignore
 import generalFormatter from 'general-formatter'
 // @ts-ignore
-import configData from '../logs.json' assert { type: 'json' }
+import configData from './logs.json' assert { type: 'json' }
 import readLine from 'readline'
 import path from 'path'
 import { appendFileSync, existsSync, mkdirSync, createReadStream } from 'fs'
-import { FileOptions, Level, Levels, LogOptions, ConfigData } from '../types'
+import { FileOptions, Level, Levels, LogOptions, ConfigData } from './types'
 
 /**
  * @description Object with list of default levels
@@ -53,7 +53,7 @@ export const defaultLevels: Levels = {
  */
 export function log(options: LogOptions): void {
   const logsJson: ConfigData = configData
-  const levels: Levels = logsJson.levels
+  const levels: Levels = logsJson?.levels || defaultLevels
 
   const { levelName, error } = options
   const targetLevel: Level = levels.hasOwnProperty(levelName)

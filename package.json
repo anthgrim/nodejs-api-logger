@@ -2,11 +2,11 @@
   "name": "nodejs-server-logger",
   "version": "0.0.1",
   "description": "NodeJS API Logger",
-  "main": "server.js",
+  "main": "index.js",
   "type": "module",
   "scripts": {
     "dev": "npx nodemon",
-    "start": "node ./build/src/index.js"
+    "start": "node ./build/index.js"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,5 @@
   },
   "dependencies": {
     "general-formatter": "^0.0.15"
-  },
-  "bin": "./bin.js"
+  }
 }
