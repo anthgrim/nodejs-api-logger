@@ -1,7 +1,11 @@
 // @ts-ignore
 import generalFormatter from 'general-formatter'
+// @ts-ignore
+import configData from '../logs.json' assert { type: 'json' }
+import readLine from 'readline'
+import path from 'path'
 import { appendFileSync, existsSync, mkdirSync, createReadStream } from 'fs'
-import { Level, Levels, LogOptions } from '../types'
+import { FileOptions, Level, Levels, LogOptions, ConfigData } from '../types'
 
 /**
  * @description Object with list of default levels
@@ -48,10 +52,13 @@ export const defaultLevels: Levels = {
  * @return {void} void
  */
 export function log(options: LogOptions): void {
+  const logsJson: ConfigData = configData
+  const levels: Levels = logsJson.levels
+
   const { levelName, error } = options
-  const targetLevel: Level = defaultLevels.hasOwnProperty(levelName)
-    ? defaultLevels[levelName]
-    : defaultLevels.info
+  const targetLevel: Level = levels.hasOwnProperty(levelName)
+    ? levels[levelName]
+    : levels.info
   if (error !== undefined) {
     options.message = `${error.name} - ${error.message}\n${error.stack}`
   }
@@ -65,14 +72,25 @@ export function log(options: LogOptions): void {
 }
 
 /**
+ * @description Gets the date and formatted time in MM/DD/YYYYTHH:MM:SS:ms
+ * @returns {string} date
+ */
+function getCurrentDate(): string {
+  const date = new Date()
+  const formatted = generalFormatter.convertToDateString(date, 'en-US')
+  const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}:${date.getMilliseconds()}`
+  return `${formatted}T${time}`
+}
+
+/**
  * @description Write to the console
  * @param {Level} targetLevel
  * @param {string} message
- * @param {Error | undefined} error
  */
 function writeToConsole(targetLevel: Level, message: string): void {
-  const date = generalFormatter.convertToDateString(new Date(), 'en-US')
-  const header = `\x1b[${targetLevel.color}m[${targetLevel.value}] - ${date}\x1b[0m`
+  const header = `\x1b[${targetLevel.color}m[${
+    targetLevel.value
+  }] - ${getCurrentDate()}\x1b[0m`
 
   console.log(`${header}: ${message}`)
 }
@@ -83,4 +101,93 @@ function writeToConsole(targetLevel: Level, message: string): void {
  * @param {string} message
  * @param {Error | undefined} error
  */
-function writeToFile(targetLevel: Level, message: string): void {}
+function writeToFile(targetLevel: Level, message: string): void {
+  const logDir = configData.logDir
+  const data: string = `{"level": "${
+    targetLevel.value
+  }", "message": "${message}", "timeStamp": "${getCurrentDate()}"}\r\n`
+
+  if (!existsSync(logDir)) {
+    log({
+      levelName: 'debug',
+      message:
+        './logs directory does not exist. Creating one in root directory ...'
+    })
+    mkdirSync(logDir)
+  }
+
+  const options: FileOptions = {
+    encoding: 'utf8',
+    mode: 438
+  }
+
+  try {
+    appendFileSync(
+      `${logDir}/${targetLevel.value.toLowerCase()}.log`,
+      data,
+      options
+    )
+  } catch (error: any) {
+    log({ levelName: 'debug', message: '', error })
+  }
+}
+
+/**
+ * @description Gets the logs of specified file
+ * @param {string} fileName
+ * @returns {Promise<JSON[]>} logs
+ */
+export async function readLog(fileName: string): Promise<JSON[]> {
+  const logDir = './logs'
+
+  return await new Promise((resolve, reject) => {
+    const file = path.join(
+      logDir,
+      fileName?.includes('.') ? fileName : `${fileName}.log`
+    )
+
+    const lineReader = readLine.createInterface({
+      input: createReadStream(file)
+    })
+
+    const logs: JSON[] = []
+
+    lineReader.on('line', (line) => logs.push(JSON.parse(line)))
+    lineReader.on('close', () => {
+      log({
+        levelName: 'access',
+        message: `${fileName.toUpperCase()} logs have been accessed`
+      })
+      console.table(logs)
+      resolve(logs)
+    })
+
+    lineReader.on('error', (error) => reject(error))
+  })
+}
+
+/**
+ * @description Gets the logs of specified file
+ * @param {string} fileName
+ * @returns {Promise<JSON[]>} logs
+ */
+export async function readJSONData(): Promise<JSON[]> {
+  const logDir = './logs.json'
+
+  return await new Promise((resolve, reject) => {
+    const file = path.join(logDir)
+
+    const lineReader = readLine.createInterface({
+      input: createReadStream(file)
+    })
+
+    const logs: JSON[] = []
+
+    lineReader.on('line', (line) => logs.push(JSON.parse(line)))
+    lineReader.on('close', () => {
+      resolve(logs)
+    })
+
+    lineReader.on('error', (error) => reject(error))
+  })
+}

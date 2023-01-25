@@ -14,7 +14,7 @@ export interface Levels {
 }
 
 export interface FileOptions {
-  encoded: BufferEncoding | any | undefined
+  encoding: BufferEncoding | any | undefined
   mode: number
 }
 
@@ -22,4 +22,10 @@ export interface LogOptions {
   levelName: 'info' | 'database' | 'debug' | 'access' | 'error' | 'fatal'
   message: string
   error?: Error
+}
+
+export interface ConfigData {
+  logDir: string
+  dateFormat: string
+  levels: Levels
 }

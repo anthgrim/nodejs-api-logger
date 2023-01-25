@@ -35,5 +35,6 @@
   },
   "dependencies": {
     "general-formatter": "^0.0.15"
-  }
+  },
+  "bin": "./bin.js"
 }

@@ -1,0 +1,36 @@
+{
+  "logDir": "./logs",
+  "dateFormat": "en-US",
+  "levels": {
+    "info": {
+      "value": "INFO",
+      "color": "34",
+      "writeToFile": true
+    },
+    "database": {
+      "value": "Database",
+      "color": "32",
+      "writeToFile": true
+    },
+    "debug": {
+      "value": "DEBUG",
+      "color": "36",
+      "writeToFile": true
+    },
+    "access": {
+      "value": "ACCESS",
+      "color": "35",
+      "writeToFile": false
+    },
+    "error": {
+      "value": "ERROR",
+      "color": "31",
+      "writeToFile": true
+    },
+    "fatal": {
+      "value": "FATAL",
+      "color": "31;1",
+      "writeToFile": true
+    }
+  }
+}
