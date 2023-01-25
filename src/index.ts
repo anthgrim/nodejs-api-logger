@@ -1,11 +1,9 @@
 // @ts-ignore
-import generalFormatter from 'general-formatter'
-// @ts-ignore
-import configData from './logs.json' assert { type: 'json' }
+import moment from 'moment'
 import readLine from 'readline'
 import path from 'path'
 import { appendFileSync, existsSync, mkdirSync, createReadStream } from 'fs'
-import { FileOptions, Level, Levels, LogOptions, ConfigData } from './types'
+import { FileOptions, Level, Levels, LogOptions, ConfigData } from '../types'
 
 /**
  * @description Object with list of default levels
@@ -43,6 +41,12 @@ export const defaultLevels: Levels = {
   }
 }
 
+const configData: ConfigData = {
+  logDir: './logs',
+  dateFormat: 'en-US',
+  levels: defaultLevels
+}
+
 /**
  * @summary Main logging function
  * @description Logs and write to the console
@@ -52,8 +56,7 @@ export const defaultLevels: Levels = {
  * @return {void} void
  */
 export function log(options: LogOptions): void {
-  const logsJson: ConfigData = configData
-  const levels: Levels = logsJson?.levels || defaultLevels
+  const levels: Levels = configData.levels
 
   const { levelName, error } = options
   const targetLevel: Level = levels.hasOwnProperty(levelName)
@@ -76,10 +79,7 @@ export function log(options: LogOptions): void {
  * @returns {string} date
  */
 function getCurrentDate(): string {
-  const date = new Date()
-  const formatted = generalFormatter.convertToDateString(date, 'en-US')
-  const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}:${date.getMilliseconds()}`
-  return `${formatted}T${time}`
+  return moment(new Date()).format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
 }
 
 /**
@@ -138,7 +138,7 @@ function writeToFile(targetLevel: Level, message: string): void {
  * @returns {Promise<JSON[]>} logs
  */
 export async function readLog(fileName: string): Promise<JSON[]> {
-  const logDir = './logs'
+  const logDir = configData.logDir
 
   return await new Promise((resolve, reject) => {
     const file = path.join(
