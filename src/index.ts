@@ -54,22 +54,21 @@ const configData: ConfigData = {
  * @note If the level name does not exist, the default level info will be added
  * @return {void} void
  */
-export function log(options: LogOptions): void {
+export function log({ levelName, message, error }: LogOptions): void {
   const levels: Levels = configData.levels
 
-  const { levelName, error } = options
   const targetLevel: Level = levels.hasOwnProperty(levelName)
     ? levels[levelName]
     : levels.info
   if (error !== undefined) {
-    options.message = `${error.name} ${error.message} ${error.stack}`
+    message = `${error.name} ${error.message} ${error.stack}`
   }
 
   // Write to the console
-  writeToConsole(targetLevel, options.message)
+  writeToConsole(targetLevel, message)
 
   if (targetLevel.writeToFile) {
-    writeToFile(targetLevel, options.message, error)
+    writeToFile(targetLevel, message, error)
   }
 }
 
