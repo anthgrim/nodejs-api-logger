@@ -1,5 +1,4 @@
-// @ts-ignore
-import moment from 'moment'
+import { convertToDateString } from 'general-formatter'
 import readLine from 'readline'
 import path from 'path'
 import { appendFileSync, existsSync, mkdirSync, createReadStream } from 'fs'
@@ -79,7 +78,13 @@ export function log(options: LogOptions): void {
  * @returns {string} date
  */
 function getCurrentDate(): string {
-  return moment(new Date()).format(moment.HTML5_FMT.DATETIME_LOCAL_SECONDS)
+  const date = new Date()
+  const formatted = convertToDateString({
+    date: date.toString(),
+    countryCode: 'en-US'
+  })
+  const completeDate = `${formatted}T${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+  return completeDate
 }
 
 /**

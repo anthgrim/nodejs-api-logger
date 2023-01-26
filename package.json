@@ -39,6 +39,6 @@
     "lib/**/*"
   ],
   "dependencies": {
-    "moment": "^2.29.4"
+    "general-formatter": "^0.0.16"
   }
 }
